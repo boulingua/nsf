@@ -5,7 +5,7 @@ Build plan for **Norsk som fremmedspråk (NSF)** — the boulingua Norwegian cou
 today an empty scaffold (LICENSE, README, brand icons) and is flagged *coming
 soon* on the boulingua world map. This document is the end-to-end plan to build
 the **content and the website** from that scaffold to a live course, conforming
-to the pagegen template and the boulingua curriculum framework.
+to the boulingua `kit` and the curriculum framework.
 
 ---
 
@@ -41,7 +41,7 @@ is thin — declaring the gap is correct, not a defect.
    Norwegian: `no_NO-talesyntese-medium` (**CC0**) as the narrating voice, and
    `no_NO-nvcc-medium` (**CC0**), which is unusual enough to state plainly — it
    carries **ten speakers in one model**, so a dialogue needing more than two parts
-   costs nothing extra. Both are registered in `audiogen/voices.yml`. What is left is
+   costs nothing extra. Both are registered in `kit/audio/voices.yml`. What is left is
    an audition, not a search.
 5. **Dialect reality.** Norway has no single spoken standard; audio and models must
    commit to one accessible spoken norm (Eastern/Oslo Bokmål) and say so.
@@ -73,10 +73,10 @@ Each item states a concrete, opinionated recommendation.
   clear. Second voice: **`no_NO-nvcc-medium`**, also **`CC0`**, carrying **ten
   speakers in a single model**, which settles multi-part dialogue outright and makes
   Norwegian better provisioned for audio than most of the fifteen scaffolds. Both
-  rows live in **`audiogen/voices.yml`** (relocating to `kit/audio/voices.yml` at
-  F1), and voice IDs are read from there rather than typed — a transliterated ID is
+  rows live in **`kit/audio/voices.yml`**, the single source of truth for voice
+  IDs, and they are read from there rather than typed — a transliterated ID is
   how a 404 gets written into a download script. **Do not hand-add a voice to
-  `get_voices.sh`:** the `"no_NO-talesyntese-medium|no/no_NO/talesyntese/medium"`
+  `kit/audio/get_voices.sh`:** the `"no_NO-talesyntese-medium|no/no_NO/talesyntese/medium"`
   array entry this line used to ask for no longer exists; the script is
   registry-driven. **Action item:** smoke-test both voices on an æ/ø/å + toneme
   minimal-pair sentence. **Fallback ladder:** if `talesyntese` fails the audition,
@@ -92,15 +92,31 @@ Each item states a concrete, opinionated recommendation.
 
 ---
 
-## 3. Instantiation from pagegen
+## 3. Instantiation from the kit
 
-Stand up the buildable site by copying the template and changing only the marked values.
+Stand up the buildable site by importing the kit and changing only the marked
+values. No code is copied: the course repo holds content, marks, materials,
+brand and configuration, and nothing else.
 
-1. **Copy the template.** Instantiate `pagegen` into this repo's working tree
-   (hugo.toml, layouts, archetypes, scripts, content skeleton, `.github/workflows/`,
-   data/, brand/, legal pages), preserving the existing `nsf/LICENSE`, `README.md`
-   and `brand/`.
-2. **Edit `hugo.toml`** (only the marked values):
+1. **Create the repo around the kit import.** `nsf` carries a short `hugo.toml`
+   (the marked values below plus `[module] [[module.imports]] path =
+   "github.com/boulingua/kit"`), a `go.mod`/`go.sum` with `require
+   github.com/boulingua/kit v1.0.0`, `boulingua.yml` (the only per-course config
+   the gate battery reads), the twelve-line `.github/workflows/deploy.yml` taken
+   verbatim from `kit/templates/deploy.yml`, an empty `content/` skeleton and the
+   three legal pages — preserving the existing `nsf/LICENSE`, `README.md` and
+   `brand/`. `layouts/`, `assets/`, `scripts/`, `i18n/` and `archetypes/` are
+   **not** copied and must never appear in `nsf/`: they are the drift surface,
+   and a file that is not in the repo cannot fork. Hugo resolves them from the
+   module at the pinned tag; CI checks the same tag out for the gate battery, and
+   `bin/kit` does it locally.
+2. **Vendor `_materials/`.** `kit materials sync` assembles the `.sty` files, the
+   fonts and the icon PDFs flat into `nsf/_materials/`, because XeLaTeX cannot
+   read a Hugo module. It is the only vendored surface in the repo, digest-locked
+   in `kit.lock`, so a hand edit fails the next `bin/kit check`. (The instruction
+   this replaces said to copy `_materials/` from the template — `pagegen/_materials/`
+   never existed.)
+3. **Edit `hugo.toml`** (only the marked values):
    - `baseURL = "https://boulingua.github.io/nsf/"`
    - `title = "Norsk som fremmedspråk — S. Le Boulanger"`
    - `languageCode = "nb"` · `defaultContentLanguage = "nb"`
@@ -108,20 +124,31 @@ Stand up the buildable site by copying the template and changing only the marked
    - `description` = Norwegian-course one-liner · `keywords = "norsk,bokmål,CEFR,curriculum,OER,norwegian"`
    - `[[params.social]].url = "https://github.com/boulingua/nsf"`
    - `[params.plausible].domain = "boulingua.github.io/nsf"`
-   - `[params].code = "nsf"` — selects the accent from `data/accents.yaml`
-   - `[[menu.main]]` — replace example sections with the real ones:
+   - `[params].code = "nsf"` — selects the accent from the kit's `data/accents.yaml`,
+     and it now carries more weight rather than less: an unset code resolves to the
+     kit's neutral graphite `template` accent, so an unconfigured course looks
+     obviously wrong instead of looking like DaF, which is what the old template did.
+     Gate F7-C3 makes it fatal.
+   - `[[menu.main]]` — replace the example sections with the real ones:
      Uttale, Nivå A1, Nivå A2, Nivå B1, Materials, About, Legal (keep the plausible
-     sub-table **last**, per the TOML sub-table trap warning).
-3. **Regenerate the brand mark.** Confirm `data/accents.yaml` carries
-   `code: nsf → accent: "#6D8618"` (it already does), then run
-   `python brand/make_icon.py` to regenerate the pentagon icon + favicons from the
-   accent. Verify against the existing `nsf/brand/icon.svg`.
-4. **Fill legal placeholders.** Replace the ⟨…⟩ placeholders in `impressum`,
+     sub-table **last**, after every bare `[params]` key, per the TOML sub-table
+     trap: everything after a header is scoped to it, so a sub-table opened early
+     silently swallows the keys above it).
+4. **Regenerate the brand mark.** Confirm the kit's `data/accents.yaml` carries
+   `code: nsf → accent: "#6D8618"` (it already does), then run the kit's
+   `make_icon.py` to regenerate the pentagon icon + favicons from the accent into
+   `brand/`, the one brand surface the course owns. Verify against the existing
+   `nsf/brand/icon.svg`. There is no course CSS to touch.
+5. **Fill legal placeholders.** Replace the ⟨…⟩ placeholders in `impressum`,
    `datenschutz`, `haftungsausschluss`; keep the VG Wort METIS disclosure in
-   Datenschutz. Once filled, drop the `|| true` on the legal-placeholder gate.
-5. **First green build.** `hugo --minify --gc` clean; run the gate battery locally
-   (`scripts/verify_*`); push to `main`; confirm `build-deploy.yml` deploys to
-   **GitHub Pages** at the baseURL. This is the MVP-0 milestone (empty but live).
+   Datenschutz. The placeholder gate is blocking as it stands — there is no
+   `|| true` to drop, because suppressions are prohibited org-wide.
+6. **First green build.** `hugo --minify --gc --panicOnWarning` clean — a warning
+   is now a failed build — then `bin/kit check`, the same battery CI runs; push to
+   `main` and confirm the twelve-line workflow deploys to **GitHub Pages** at the
+   baseURL. This is the MVP-0 milestone (empty but live), and it is not reached
+   while `layouts/`, `assets/`, `scripts/`, `i18n/` or `archetypes/` exist in the
+   repo.
 
 ---
 
@@ -202,14 +229,15 @@ and vocabulary spiralling.
   `Materials`) using shortcodes only — `{{< hero >}}`, `{{< kicker >}}`, `{{< lead >}}`,
   `{{< card-grid >}}`/`{{< card >}}` — never raw HTML.
 - **Materials pipeline (committed).** Generate decks and worksheets locally from the
-  branded **slidegen** (`.odp` + PDF) and **sheetgen** (PDF worksheets) LaTeX
-  templates using the `nsf` accent; commit under `static/materials` and
+  branded LaTeX templates in `kit/latex/` (`.odp` + PDF decks, PDF worksheets)
+  using the `nsf` accent; commit under `static/materials` and
   `static/downloads`; front matter references `presentation`/`worksheet` `{file,
   thumbnail}`. CI only verifies — no TeX Live in the deploy path.
-- **Native-voice audio (audiogen/Piper).** The Norwegian voices are already
-  registered, so run `bash get_voices.sh` — it reads `audiogen/voices.yml` and
-  nothing is added to it by hand — then
-  `python build_audio.py /path/to/nsf voices/no_NO-talesyntese-medium.onnx nb 'content/*/units/*/index.md'`.
+- **Native-voice audio (`kit/audio/` / Piper).** The Norwegian voices are already
+  registered, so run `bash kit/audio/get_voices.sh` — it reads
+  `kit/audio/voices.yml`, the registry that is the single source of truth for voice
+  IDs, and nothing is added to it by hand — then
+  `python kit/audio/build_audio.py /path/to/nsf voices/no_NO-talesyntese-medium.onnx nb 'content/*/units/*/index.md'`.
   Output OGG/Opus under `static/materials/audio/<unit>/` + `data/audio/<unit>.json`;
   the unit layout renders a **„Lytt" (Listen)** player with transcript beneath (audio
   **and** text, for accessibility). **Decision:** ship audio where
@@ -228,7 +256,7 @@ and vocabulary spiralling.
 **Required and non-skippable.** Every content page ≥1800 rendered characters — every
 unit, every exam, every appendix, and long-form editorial pages (About/course
 overview, the Uttale pages, the Scandinavian guide) — gets its **own** VG Wort
-Zählmarke, one mark per work on exactly one URL, per `pagegen/docs/vgwort-standard.md`.
+Zählmarke, one mark per work on exactly one URL, per `kit/docs/vgwort-standard.md`.
 
 - **Codes.** Draw **fresh public codes** (32-hex) from the author's **T.O.M.** account —
   never invent codes, never expose the private code.
@@ -252,14 +280,14 @@ Zählmarke, one mark per work on exactly one URL, per `pagegen/docs/vgwort-stand
 
 ## 8. Milestones & sequencing
 
-1. **M0 — Site live (empty).** Instantiate from pagegen (§3), first green build, Pages
+1. **M0 — Site live (empty).** Stand the site up on the kit (§3), first green build, Pages
    deploy. Legal pages filled. *Dep: none.* **S–M.**
 2. **M1 — Voice + pipeline proven.** The Norwegian voices are already sourced and
    licence-cleared (`no_NO-talesyntese-medium` and the ten-speaker
-   `no_NO-nvcc-medium`, both CC0, both rows in `audiogen/voices.yml`), so M1 is the
-   audition and the wiring rather than a search: fetch with `get_voices.sh`,
-   smoke-test the minimal pairs, record the verdict; slidegen/sheetgen produce an
-   `nsf`-branded sample deck + worksheet; thumbnails render. *Dep: M0.* **M.**
+   `no_NO-nvcc-medium`, both CC0, both rows in `kit/audio/voices.yml`), so M1 is the
+   audition and the wiring rather than a search: fetch with `kit/audio/get_voices.sh`,
+   smoke-test the minimal pairs, record the verdict; the `kit/latex/` templates
+   produce an `nsf`-branded sample deck + worksheet; thumbnails render. *Dep: M0.* **M.**
 3. **M2 — Uttale stage + conformance skeleton.** Pronunciation section published;
    `conformance.yml` + coverage manifest committed and green under the §4 gate in CI;
    VG Wort marks registered for the Uttale pages. *Dep: M1.* **M.**
