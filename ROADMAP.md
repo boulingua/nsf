@@ -36,8 +36,13 @@ is thin — declaring the gap is correct, not a defect.
 3. **Æ Ø Å + pronunciation-vs-spelling gap.** Latin script plus three extra letters
    (æ ø å) and a pitch-accent (two tonemes) system that is **not** written. Spelling
    is only a light onboarding cost; pronunciation and TTS fidelity are the real work.
-4. **TTS availability.** Piper's shipped boulingua voice set has no Norwegian voice
-   yet; a native Bokmål voice must be sourced and verified before audio can ship.
+4. **TTS availability — better than this plan first assumed.** The three voices
+   boulingua ships today are English, French and German only, but upstream does carry
+   Norwegian: `no_NO-talesyntese-medium` (**CC0**) as the narrating voice, and
+   `no_NO-nvcc-medium` (**CC0**), which is unusual enough to state plainly — it
+   carries **ten speakers in one model**, so a dialogue needing more than two parts
+   costs nothing extra. Both are registered in `audiogen/voices.yml`. What is left is
+   an audition, not a search.
 5. **Dialect reality.** Norway has no single spoken standard; audio and models must
    commit to one accessible spoken norm (Eastern/Oslo Bokmål) and say so.
 
@@ -62,14 +67,21 @@ Each item states a concrete, opinionated recommendation.
 - **Pitch accent / tonemes.** Not orthographic; handle in the **pronunciation stage
   and audio**, not in spelling drills. Document tonemes descriptively (e.g.
   *bønder* vs *bønner* minimal-pair note) without demanding pupils produce them at A1.
-- **Native voice / Piper TTS.** *Recommendation:* use the National Library of Norway's
-  openly-licensed Bokmål voice packaged in `rhasspy/piper-voices`
-  (`no_NO-talesyntese-medium`, NB Talesyntese, permissive licence). **Action item:**
-  verify the exact voice path/licence in piper-voices, add it to `audiogen/get_voices.sh`
-  (`"no_NO-talesyntese-medium|no/no_NO/talesyntese/medium"`), and smoke-test on an
-  æ/ø/å + toneme minimal-pair sentence. **Fallback:** if quality is inadequate, ship
-  text-only transcripts for the affected segments and record the gap — never block a
-  unit on audio.
+- **Native voice / Piper TTS.** *Decided:* the National Library of Norway's Bokmål
+  voice, **`no_NO-talesyntese-medium`** (NB Talesyntese). Its licence is verified
+  against the upstream MODEL_CARD as **`CC0`** — no attribution obligation, nothing to
+  clear. Second voice: **`no_NO-nvcc-medium`**, also **`CC0`**, carrying **ten
+  speakers in a single model**, which settles multi-part dialogue outright and makes
+  Norwegian better provisioned for audio than most of the fifteen scaffolds. Both
+  rows live in **`audiogen/voices.yml`** (relocating to `kit/audio/voices.yml` at
+  F1), and voice IDs are read from there rather than typed — a transliterated ID is
+  how a 404 gets written into a download script. **Do not hand-add a voice to
+  `get_voices.sh`:** the `"no_NO-talesyntese-medium|no/no_NO/talesyntese/medium"`
+  array entry this line used to ask for no longer exists; the script is
+  registry-driven. **Action item:** smoke-test both voices on an æ/ø/å + toneme
+  minimal-pair sentence. **Fallback ladder:** if `talesyntese` fails the audition,
+  `nvcc`; if both fail, transcript-only for the affected segments with the gap
+  logged — never a Danish or Swedish voice, and never a unit blocked on audio.
 - **Level-0 script/pronunciation onboarding.** *Recommendation:* a small **`Uttale`
   (pronunciation) stage** of 2–3 editorial pages: alphabet + æ ø å, vowel length,
   *kj/skj/sj*, silent letters, and a descriptive toneme note. Treated as course
@@ -136,8 +148,12 @@ Stand up the buildable site by copying the template and changing only the marked
   manifest listing every implemented scale and, per scale, levels covered vs
   `no-official-descriptor`.
 - **Audit gate.** Every `implements_id` must resolve to a real (scale, level) in the
-  framework; wire `curriculum/scripts/id-audit.sh` into CI (or a pre-commit check) so
-  format, global uniqueness and resolvability all pass before a unit merges.
+  framework, checked in CI before a unit merges. The reusable workflow
+  `boulingua/.github/.github/workflows/course-build.yml@v1` runs
+  `python .curriculum/scripts/conformance_audit.py resolve --manifest conformance.yml --content content`,
+  which covers format, global uniqueness and resolvability in one pass.
+  `id-audit.sh` audits the framework's *own* level files and **cannot** validate this
+  repo. Do not wire it here.
 
 ---
 
@@ -174,7 +190,7 @@ and vocabulary spiralling.
   English-L1 interference), grammar reference (V2, gender, tenses), pronunciation &
   toneme guide, **Scandinavian mutual-intelligibility guide** (Bokmål vs Danish/Swedish),
   Nynorsk awareness note, writing rubrics, teaching workflow.
-- **Global acceptance criteria per phase.** Clean `hugo` build; id-audit passes;
+- **Global acceptance criteria per phase.** Clean `hugo` build; the §4 audit gate passes;
   every editorial page ≥1800 chars has a registered VG Wort mark; downloads present
   and attributed; only openly-licensed/public-domain source material, cited.
 
@@ -190,13 +206,17 @@ and vocabulary spiralling.
   templates using the `nsf` accent; commit under `static/materials` and
   `static/downloads`; front matter references `presentation`/`worksheet` `{file,
   thumbnail}`. CI only verifies — no TeX Live in the deploy path.
-- **Native-voice audio (audiogen/Piper).** Add the Norwegian voice to
-  `get_voices.sh`, then
+- **Native-voice audio (audiogen/Piper).** The Norwegian voices are already
+  registered, so run `bash get_voices.sh` — it reads `audiogen/voices.yml` and
+  nothing is added to it by hand — then
   `python build_audio.py /path/to/nsf voices/no_NO-talesyntese-medium.onnx nb 'content/*/units/*/index.md'`.
   Output OGG/Opus under `static/materials/audio/<unit>/` + `data/audio/<unit>.json`;
   the unit layout renders a **„Lytt" (Listen)** player with transcript beneath (audio
-  **and** text, for accessibility). **Decision:** ship audio only where the voice
-  passes the æ/ø/å + minimal-pair smoke test; otherwise transcript-only and log the gap.
+  **and** text, for accessibility). **Decision:** ship audio where
+  `no_NO-talesyntese-medium` passes the æ/ø/å + minimal-pair smoke test; otherwise
+  fall to `no_NO-nvcc-medium` (CC0, ten speakers) and only then to transcript-only
+  with the gap logged. Dialogue units with three or more parts use `nvcc`'s
+  `speaker_id_map` rather than pitching one voice differently.
 - **Thumbnails.** `scripts/render_thumbs.py` for deck/worksheet previews; committed.
 - **Downloads.** Surfaced via the standard end-of-article downloads render; verified
   by `verify_downloads.py` (present + attributed).
@@ -234,11 +254,14 @@ Zählmarke, one mark per work on exactly one URL, per `pagegen/docs/vgwort-stand
 
 1. **M0 — Site live (empty).** Instantiate from pagegen (§3), first green build, Pages
    deploy. Legal pages filled. *Dep: none.* **S–M.**
-2. **M1 — Voice + pipeline proven.** Norwegian Piper voice sourced, verified, wired into
-   audiogen; slidegen/sheetgen produce an `nsf`-branded sample deck + worksheet;
-   thumbnails render. *Dep: M0.* **M.**
+2. **M1 — Voice + pipeline proven.** The Norwegian voices are already sourced and
+   licence-cleared (`no_NO-talesyntese-medium` and the ten-speaker
+   `no_NO-nvcc-medium`, both CC0, both rows in `audiogen/voices.yml`), so M1 is the
+   audition and the wiring rather than a search: fetch with `get_voices.sh`,
+   smoke-test the minimal pairs, record the verdict; slidegen/sheetgen produce an
+   `nsf`-branded sample deck + worksheet; thumbnails render. *Dep: M0.* **M.**
 3. **M2 — Uttale stage + conformance skeleton.** Pronunciation section published;
-   `conformance.yml` + coverage manifest committed; `id-audit.sh` green in CI;
+   `conformance.yml` + coverage manifest committed and green under the §4 gate in CI;
    VG Wort marks registered for the Uttale pages. *Dep: M1.* **M.**
 4. **M3 — A1 MVP live (flip candidate).** Full A1 level (12 units + exam), materials,
    audio, appendices-so-far, all A1 marks registered, all gates green. *Dep: M2.* **L.**
@@ -251,7 +274,7 @@ Zählmarke, one mark per work on exactly one URL, per `pagegen/docs/vgwort-stand
 - At minimum **A1 fully live** (M3): section landings, 12 units + model exam, committed
   decks/worksheets, native-voice audio (or logged transcript-only), appendices for A1.
 - `hugo --minify --gc` clean; full gate battery green (VG Wort coverage/render/hub,
-  downloads, legal placeholders filled, attribution); `id-audit.sh` passes.
+  downloads, legal placeholders filled, attribution); the §4 audit gate passes.
 - `conformance.yml` present with `declared_conformance` and a published coverage manifest.
 - Every ≥1800-char page carries a registered VG Wort mark logged in the usage registry.
 - README status updated from *scaffold* to active; the boulingua hub world-map entry
@@ -264,9 +287,12 @@ Zählmarke, one mark per work on exactly one URL, per `pagegen/docs/vgwort-stand
 
 - **Bokmål vs Nynorsk** — *decided: Bokmål*, Nynorsk awareness-only. Risk: school
   contexts that require Nynorsk exposure; mitigate with the recognition appendix/unit.
-- **Piper Norwegian voice quality** — the shipped set has none; NB Talesyntese must be
-  verified for æ/ø/å and naturalness. Risk: poor quality blocks audio. *Mitigation:*
-  transcript-only fallback, never block a unit; log the gap.
+- **Piper Norwegian voice quality** — availability and licence are settled (two `CC0`
+  voices upstream, §2); what is unverified is naturalness, specifically æ/ø/å and the
+  toneme minimal pairs. Risk: poor quality now delays audio, it can no longer block
+  it. *Mitigation:* audition `no_NO-talesyntese-medium`, fall to the ten-speaker
+  `no_NO-nvcc-medium`, then transcript-only; log the gap; never substitute a Danish
+  or Swedish voice; never block a unit on audio.
 - **Scandinavian world-map credit** — the map credits Norwegian across DK/SE. Risk of
   over-claiming. *Mitigation:* explicit receptive-Scandinavian units + a
   mutual-intelligibility appendix scoping the claim as *receptive*, not productive.
