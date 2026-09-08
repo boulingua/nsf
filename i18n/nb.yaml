@@ -1,0 +1,19 @@
+# Norwegian (Bokmål) UI strings. `languageCode = "nb"`, so these are the
+# strings the site actually renders; i18n/en.yaml is kept as the shared
+# boulingua key set and as the fallback for reuse of these layouts.
+presentations: { other: "Presentasjoner" }
+worksheets: { other: "Arbeidsark" }
+presentation: { other: "Presentasjon" }
+worksheet: { other: "Arbeidsark" }
+download: { other: "Last ned" }
+download_pdf: { other: "Last ned .pdf" }
+presentation_preview: { other: "Forhåndsvisning av presentasjonen" }
+worksheet_preview: { other: "Forhåndsvisning av arbeidsarket" }
+listen: { other: "Lytt" }
+audio_intro: { other: "Ordforråd, dialoger og tekster fra denne enheten som lyd, lest inn med en norsk stemme. Teksten står under hvert spor." }
+audio_unsupported: { other: "Nettleseren din støtter ikke lyd." }
+show_transcript: { other: "Vis teksten" }
+exam: { other: "Prøve" }
+menu_toggle: { other: "Åpne / lukke hovedmenyen" }
+colorscheme_toggle: { other: "Bytt fargetema (lyst / mørkt)" }
+colorscheme_short: { other: "Lyst / mørkt" }
