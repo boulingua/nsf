@@ -1,0 +1,144 @@
+{
+  "scope": "Pronunciation drafts and one A1 teaching unit with its assessment; no M2 or achieved coverage claim",
+  "sources": [
+    {
+      "url": "https://www.ntnu.edu/learnnow/1/pronunciation",
+      "use": "Alphabet and length notation"
+    },
+    {
+      "url": "https://www.ntnu.edu/learnnow/1/grammar",
+      "use": "Question patterns and basic word order"
+    },
+    {
+      "url": "https://www.ntnu.edu/learnnow/1/vocabulary",
+      "use": "First-word pronunciation reference"
+    }
+  ],
+  "pages": [
+    {
+      "page": "a1/units/unit01-erste-begegnung",
+      "sha256": "af59e5909bb3d536199ea402e322909297f64a4018cfb2ec4210fda072a468d8",
+      "review_status": "pending",
+      "reviewer": null,
+      "mappings": [
+        {
+          "id": "A1.REC.overall-reading-comprehension.01",
+          "statement": "You can make sense of very short, simple texts one phrase at a time, spotting familiar names, words and basic phrases and rereading as needed.",
+          "basis": "proposed",
+          "task_evidence": "Unit Input A/C and Practise1; exam1 extract names/cities from a short original text.",
+          "review_decision": null
+        },
+        {
+          "id": "A1.INT.conversation.03",
+          "statement": "You introduce someone and use basic phrases for greeting and taking your leave.",
+          "basis": "proposed",
+          "task_evidence": "Unit Apply reception conversation includes greetings, introduction and farewell; exam3 observes these acts.",
+          "review_decision": null
+        },
+        {
+          "id": "A1.INT.information-exchange.05",
+          "statement": "I can tell people my name and ask other people theirs.",
+          "basis": "proposed",
+          "task_evidence": "Unit Practise2/Apply ask and answer names; exam3 changes roles and elicits a name.",
+          "review_decision": null
+        },
+        {
+          "id": "A1.LING.orthographic-control.01",
+          "statement": "You copy familiar words and short phrases (signs, instructions, object names, shop names, set phrases), spell your address, nationality, and other personal details, and use basic punctuation like full stops and question marks.",
+          "basis": "proposed",
+          "task_evidence": "Unit Practise4/5 copies and repairs names with Å/Ø; exam2 checks exact copying and exam4 punctuation.",
+          "review_decision": null
+        },
+        {
+          "id": "A1.SOC.sociolinguistic-appropriateness.01",
+          "statement": "I can make basic social contact using the simplest everyday polite forms: greetings and goodbyes, introductions, and saying please, thank you, and sorry.",
+          "basis": "proposed",
+          "task_evidence": "Unit Practise5 uses Unnskyld/Takk for a repair; Apply and exam3/4 greet and close politely.",
+          "review_decision": null
+        }
+      ],
+      "source_revisions": [
+        {
+          "previous_sha256": "489695cb5f2e4134b4ca09208202452397660464db783a050e88e084e694d30f",
+          "reason": "Added verified draft download metadata; teaching body unchanged."
+        },
+        {
+          "previous_sha256": "27fb36cdacad6db5376803fe15b033faff69bcc94acc6c99f7505d442291f946",
+          "reason": "Added an explicit source list for existing inline citations and clarified fictional examples; human review remains pending."
+        }
+      ]
+    },
+    {
+      "page": "a1/units/unit01-erste-begegnung-exam",
+      "sha256": "25505a495430f66c0e44b8d44809f641428d86d59c2251e33612bec304d75c84",
+      "review_status": "pending",
+      "reviewer": null,
+      "mappings": [
+        {
+          "id": "A1.REC.overall-reading-comprehension.01",
+          "statement": "You can make sense of very short, simple texts one phrase at a time, spotting familiar names, words and basic phrases and rereading as needed.",
+          "basis": "proposed",
+          "task_evidence": "Unit Input A/C and Practise1; exam1 extract names/cities from a short original text.",
+          "review_decision": null
+        },
+        {
+          "id": "A1.INT.conversation.03",
+          "statement": "You introduce someone and use basic phrases for greeting and taking your leave.",
+          "basis": "proposed",
+          "task_evidence": "Unit Apply reception conversation includes greetings, introduction and farewell; exam3 observes these acts.",
+          "review_decision": null
+        },
+        {
+          "id": "A1.INT.information-exchange.05",
+          "statement": "I can tell people my name and ask other people theirs.",
+          "basis": "proposed",
+          "task_evidence": "Unit Practise2/Apply ask and answer names; exam3 changes roles and elicits a name.",
+          "review_decision": null
+        },
+        {
+          "id": "A1.LING.orthographic-control.01",
+          "statement": "You copy familiar words and short phrases (signs, instructions, object names, shop names, set phrases), spell your address, nationality, and other personal details, and use basic punctuation like full stops and question marks.",
+          "basis": "proposed",
+          "task_evidence": "Unit Practise4/5 copies and repairs names with Å/Ø; exam2 checks exact copying and exam4 punctuation.",
+          "review_decision": null
+        },
+        {
+          "id": "A1.SOC.sociolinguistic-appropriateness.01",
+          "statement": "I can make basic social contact using the simplest everyday polite forms: greetings and goodbyes, introductions, and saying please, thank you, and sorry.",
+          "basis": "proposed",
+          "task_evidence": "Unit Practise5 uses Unnskyld/Takk for a repair; Apply and exam3/4 greet and close politely.",
+          "review_decision": null
+        }
+      ]
+    }
+  ],
+  "native_review": null,
+  "pedagogical_review": null,
+  "audio_decision": "transcript-only draft; no recording approved",
+  "reference_pages": [
+    {
+      "page": "aussprache/alfabet-og-tegn",
+      "sha256": "a1b9ad7f99ac4c5b8cbcf5766da64ecd14dd54bfc83ce0eb17151ee65adb2cd9",
+      "review_status": "pending",
+      "reviewer": null,
+      "checks": [
+        "Check script and example spelling against cited primary references",
+        "Check pronunciation explanations and scoped exceptions",
+        "Exercise instructions with intended beginners",
+        "Review any future recording separately; no audio approval inferred"
+      ]
+    },
+    {
+      "page": "aussprache/lesen-und-hoeren",
+      "sha256": "8550107f2c6e33f59299318536086c4fe3f933f02a67198784a3c10b2f7b53b3",
+      "review_status": "pending",
+      "reviewer": null,
+      "checks": [
+        "Check script and example spelling against cited primary references",
+        "Check pronunciation explanations and scoped exceptions",
+        "Exercise instructions with intended beginners",
+        "Review any future recording separately; no audio approval inferred"
+      ]
+    }
+  ]
+}
