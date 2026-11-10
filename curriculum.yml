@@ -9,7 +9,7 @@
 # claimed now: a target you have not planned the units for is a wish.
 
 framework: boulingua-curriculum
-framework_version: 1.2.0
+framework_version: 1.3.0
 language: nb
 declared_conformance: core
 conformance_status: in-progress
